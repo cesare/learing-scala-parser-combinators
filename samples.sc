@@ -1,5 +1,6 @@
 import scala.util.parsing.combinator._
 
+// Trying http://qiita.com/suin/items/35bc4afe618cb77f80f6
 
 object samples {
   object PostalCodeParser extends RegexParsers {
