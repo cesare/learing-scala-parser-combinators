@@ -11,10 +11,10 @@ object samples {
     }
     def apply(input: String): Either[String, Any] = parseAll(postalCode, input) match {
       case Success(result, next) => Right(result)
-      case NoSuccess(error, next) => Left(error)
+      case NoSuccess(error, next) => Left(s"${error} on line ${next.pos.line}, column ${next.pos.column}")
     }
   }
 
   println(PostalCodeParser("123-4567"))           //> Right(PostalCode(123,4567))
-  println(PostalCodeParser("1234567890"))         //> Left(`-' expected but `4' found)
+  println(PostalCodeParser("1234567890"))         //> Left(`-' expected but `4' found on line 1, column 4)
 }
