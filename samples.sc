@@ -45,12 +45,12 @@ object samples {
     def field = escaped | nonEscaped
 
     def escaped = doubleQuote ~> (textdata | comma | CR | LF | twoDoubleQuotes).* <~ doubleQuote ^^ { _.mkString }
-    def nonEscaped = textdata.*
+    def nonEscaped = textdata.* ^^ { _.mkString }
 
     def textdata = """[\u0020-\u0021\u0023-\u002B\u002D-\u007E]""".r
 
     def doubleQuote = "\""
-    def twoDoubleQuotes = doubleQuote ~ doubleQuote
+    def twoDoubleQuotes = doubleQuote ~ doubleQuote ^^ { case l ~ r => l }
 
     def comma = ","
 
@@ -64,7 +64,6 @@ object samples {
     }
   }
 
-  CSVParser("a,b,c\r\n1,2,3\r\nx,y,z")            //> res0: Either[String,Any] = Right(CSV(Header(List(List(a), List(b), List(c))
-                                                  //| ),List(Record(List(List(1), List(2), List(3))), Record(List(List(x), List(y
-                                                  //| ), List(z))))))
+  CSVParser("a,b,c\r\n1,2,3\r\n\"x\"\"\",y,z")    //> res0: Either[String,Any] = Right(CSV(Header(List(a, b, c)),List(Record(List
+                                                  //| (1, 2, 3)), Record(List(x", y, z)))))
 }
