@@ -21,12 +21,25 @@ object samples {
   /*
    * CSV parser
    */
+  case class CSV(header: Header, rows: Seq[Record])
+  case class Header(names: Seq[String])
+  case class Record(fields: Seq[String])
+
   object CSVParser extends RegexParsers {
     override def skipWhitespace = false
 
-    def file = opt(header ~ CRLF) ~ repsep(record, CRLF) ~ opt(CRLF)
-    def header = repsep(name, comma)
-    def record = repsep(field, comma)
+    def file = opt(header <~ CRLF) ~ repsep(record, CRLF) <~ opt(CRLF) ^^ {
+      case Some(header) ~ records => CSV(header, records)
+      case None ~ records => CSV(Header(List()), records)
+    }
+
+    def header = repsep(name, comma) ^^ { names =>
+      Header(names.map(_.toString))
+    }
+
+    def record = repsep(field, comma) ^^ { fields =>
+      Record(fields.map(_.toString))
+    }
 
     def name = field
     def field = escaped | nonEscaped
@@ -50,4 +63,8 @@ object samples {
       case NoSuccess(error, next) => Left(s"${error} on line ${next.pos.line}, column ${next.pos.column}")
     }
   }
+
+  CSVParser("a,b,c\r\n1,2,3\r\nx,y,z")            //> res0: Either[String,Any] = Right(CSV(Header(List(List(a), List(b), List(c))
+                                                  //| ),List(Record(List(List(1), List(2), List(3))), Record(List(List(x), List(y
+                                                  //| ), List(z))))))
 }
