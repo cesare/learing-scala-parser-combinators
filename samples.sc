@@ -31,7 +31,7 @@ object samples {
     def name = field
     def field = escaped | nonEscaped
 
-    def escaped = doubleQuote ~ (textdata | comma | CR | LF | twoDoubleQuotes).* ~ doubleQuote
+    def escaped = doubleQuote ~> (textdata | comma | CR | LF | twoDoubleQuotes).* <~ doubleQuote ^^ { _.mkString }
     def nonEscaped = textdata.*
 
     def textdata = """[\u0020-\u0021\u0023-\u002B\u002D-\u007E]""".r
